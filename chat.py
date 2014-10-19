@@ -10,7 +10,7 @@ from core import *
 def setup():
     global corp, tagger
     print("training hmm...")
-    corp = nltk.corpus.brown.tagged_sents()[0:len(nltk.corpus.brown.tagged_sents())//8]
+    corp = nltk.corpus.brown.tagged_sents()[0:len(nltk.corpus.brown.tagged_sents())]
     tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
     print("training complete")
 
@@ -28,7 +28,7 @@ def tagSentence(sentence):
 #        if not w in dist:
 #            print("word not in dist: "+str(w))
 #            pos = None
-#        elif len(dist[w].most_common()) == 0:
+#        elif len(dist[w].>idmost_common()) == 0:
 #            print("word entries empty: " +str(w))
 #            pos = None
 #        else:
