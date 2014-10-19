@@ -3,13 +3,14 @@
 import nltk
 import re
 import tagmaps
+import pickle
 from core import *
 
 #corp = nltk.corpus.treebank.tagged_sents()
 def setup():
     global corp, tagger
     print("training hmm...")
-    corp = nltk.corpus.brown.tagged_sents()
+    corp = nltk.corpus.brown.tagged_sents()[0:len(nltk.corpus.brown.tagged_sents())//8]
     tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
     print("training complete")
 
@@ -21,7 +22,7 @@ def tagSentence(sentence):
             return tagmaps.brown[read]
         else:
             print("could not read tag type: "+str(read))
-            return PartOfSpeech.UNKNOWN
+            return PartOfSpeech.Noun
     def tagWord(w):
 #        pos = ""
 #        if not w in dist:
@@ -114,6 +115,18 @@ def parse(sentence):
         if m:
             return fun(words, parts, m)
     return 'Could not match pattern' + str(parts)
+
+def save():
+    setup()
+    f = open("tagger.pickle", "wb")
+    pickle.dump(tagger, f, -1)
+    f.close()
+
+def load():
+    global tagger
+    f = open("tagger.pickle", "rb")
+    tagger = pickle.load(f)
+    f.close()
 def main():
     setup()
     data = []
