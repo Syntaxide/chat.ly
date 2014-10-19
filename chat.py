@@ -178,9 +178,11 @@ class Verb():
         return "({0} -> {1})".format(self.value, str(self.obj)) 
 
 #corp = nltk.corpus.treebank.tagged_sents()
-corp = nltk.corpus.brown.tagged_sents()
-
-tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
+def setup():
+    print("training hmm...")
+    corp = nltk.corpus.brown.tagged_sents()
+    tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
+setup()
 #dist = nltk.ConditionalFreqDist(corp)#[(tag,word) for (word,tag) in corp])
 def tagSentence(sentence):
     def readPartOfSpeech(read):
@@ -191,7 +193,7 @@ def tagSentence(sentence):
             print("could not read tag type: "+str(read))
             return PartOfSpeech.UNKNOWN
     def tagWord(w):
- #       pos = ""
+#        pos = ""
 #        if not w in dist:
 #            print("word not in dist: "+str(w))
 #            pos = None
@@ -211,8 +213,6 @@ def tagSentence(sentence):
     for i in range(0, len(tagged)):
         tagged[i] = (tagged[i][0], readPartOfSpeech(tagged[i][1]))
     return tagged
-
-
 
 def take(l, pred):
     out = []
@@ -256,12 +256,13 @@ def parse(sentence):
     print("parts: " + str(parts))
     patterns = [
         ("nvn",
-        (lambda words: Sentence(Noun(words[0]), 
-                                Verb(words[1], Noun(words[2]))))),
+        (lambda words, tagged: Sentence(Noun(words[0]), 
+                                        Verb(words[1], Noun(words[2]))))),
 
         ("nv",
-        (lambda words: Sentence(Noun(words[0]), 
-                                Verb(words[1], [])))),
+        (lambda words, tagged: Sentence(Noun(words[0]), 
+                                        Verb(words[1], [])))),
+
     ]
     for (pattern, fun) in patterns:
         print("checking pattern: " + str(pattern))
@@ -275,5 +276,3 @@ if __name__ == "__main__":
         msg = input(">")
         data.append(parse(msg))
         print(str(data[-1]))
-
-    
