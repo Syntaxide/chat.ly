@@ -179,6 +179,7 @@ class Verb():
 
 #corp = nltk.corpus.treebank.tagged_sents()
 def setup():
+    global corp, tagger
     print("training hmm...")
     corp = nltk.corpus.brown.tagged_sents()
     tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
@@ -246,6 +247,14 @@ def partsToString(parts):
     return out
     
 def parse(sentence):
+    def parseANVN(words, parts, m):
+        adjectives = words[0:len(m.group(1))]
+        subj = words[len(m.group(1))]
+        verb = words[len(m.group(1))+1]
+        obj = words[len(m.group(1))+2]
+        return Sentence(Noun(subj, adjectives),
+                        Verb(verb, Noun(obj)))
+
     tagged = tagSentence(sentence)
     tagged = take(tagged, lambda x: x[1] != PartOfSpeech.Article)
     words = [a for (a,b) in tagged]
@@ -256,18 +265,22 @@ def parse(sentence):
     print("parts: " + str(parts))
     patterns = [
         ("nvn",
-        (lambda words, tagged: Sentence(Noun(words[0]), 
-                                        Verb(words[1], Noun(words[2]))))),
+        (lambda words, parts, m: Sentence(Noun(words[0]), 
+                                          Verb(words[1], Noun(words[2]))))),
+
+        ("(a+)nvn", parseANVN),
+         
 
         ("nv",
-        (lambda words, tagged: Sentence(Noun(words[0]), 
-                                        Verb(words[1], [])))),
+        (lambda words, parts, m: Sentence(Noun(words[0]), 
+                                          Verb(words[1], [])))),
 
     ]
     for (pattern, fun) in patterns:
         print("checking pattern: " + str(pattern))
-        if re.match(pattern, flatParts):
-            return fun(words)
+        m = re.match(pattern, flatParts)
+        if m:
+            return fun(words, parts, m)
     return 'Could not match pattern' + str(parts)
 
 if __name__ == "__main__":
