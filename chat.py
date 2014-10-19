@@ -11,7 +11,8 @@ def setup():
     print("training hmm...")
     corp = nltk.corpus.brown.tagged_sents()
     tagger = nltk.HiddenMarkovModelTagger.train(corp)#[(tag,word) for (word,tag) in corp])
-setup()
+    print("training complete")
+
 #dist = nltk.ConditionalFreqDist(corp)#[(tag,word) for (word,tag) in corp])
 def tagSentence(sentence):
     def readPartOfSpeech(read):
@@ -99,7 +100,7 @@ def parse(sentence):
         (lambda words, parts, m: Sentence(Noun(words[0]), 
                                           Verb(words[1], Noun(words[2]))))),
 
-        ("(a+)nv(p?)(a+)n", parseANVPAN),
+        ("(a*)nv(p?)(a*)n", parseANVPAN),
          
 
         ("nv",
@@ -113,10 +114,13 @@ def parse(sentence):
         if m:
             return fun(words, parts, m)
     return 'Could not match pattern' + str(parts)
-
-if __name__ == "__main__":
+def main():
+    setup()
     data = []
     while True:    
         msg = input(">")
         data.append(parse(msg))
         print(str(data[-1]))
+if __name__ == "__main__":
+    main()
+
